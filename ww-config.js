@@ -1,16 +1,16 @@
 export default {
   editor: {
-    label: { en: 'GDM Billing Frontend' },
-    icon: 'credit-card',
+    label: { en: 'GDM Billing' },
+    icon: 'file',
     customSettingsPropertiesOrder: [
-      'disableInteractions',
-      { label: 'Data', isCollapsible: true, properties: ['billingData', 'statusFormula', 'idFormula', 'titleFormula', 'typeFormula', 'invoiceNumberFormula', 'invoiceValueFormula', 'createdAtFormula'] },
+      'viewMode',
+      { label: 'Data', isCollapsible: true, properties: ['billingData', 'idFormula', 'titleFormula', 'typeFormula', 'statusFormula', 'invoiceNumberFormula', 'invoiceReferenceFormula', 'invoiceValueFormula', 'createdAtFormula'] },
       { label: 'Labels', isCollapsible: true, properties: ['upcomingLabel', 'pendingLabel', 'completedLabel', 'emptyLabel'] },
     ],
     customStylePropertiesOrder: [
       { label: 'Layout', isCollapsible: true, properties: ['layoutMode', 'cardBackgroundColor', 'cardBorderRadius', 'cardPadding'] },
       { label: 'Status colors', isCollapsible: true, properties: ['upcomingAccentColor', 'pendingAccentColor', 'completedAccentColor'] },
-      { label: 'Typography', isCollapsible: true, properties: ['fontFamily', 'fontSize', 'sectionHeaderColor'] },
+      { label: 'Typography', isCollapsible: true, properties: ['fontFamily', 'fontSize', 'sectionHeaderColor', 'accentColor'] },
     ],
   },
   triggerEvents: [
@@ -20,16 +20,27 @@ export default {
       event: { value: { invoice: null } },
       default: true,
     },
+    {
+      name: 'onDeleteInvoice',
+      label: { en: 'On delete invoice (admin)' },
+      event: { value: { id: null, title: null } },
+    },
   ],
   properties: {
-    disableInteractions: {
-      label: { en: 'Disable interactions' },
-      type: 'OnOff',
+    viewMode: {
+      label: { en: 'View mode' },
+      type: 'TextSelect',
       section: 'settings',
-      defaultValue: false,
+      options: {
+        options: [
+          { value: 'admin', label: { en: 'Admin – Full details + actions' } },
+          { value: 'client', label: { en: 'Client – Clean read-only view' } },
+        ],
+      },
+      defaultValue: 'admin',
       bindable: true,
       /* wwEditor:start */
-      bindingValidation: { type: 'boolean', tooltip: 'When true, invoice cards are not clickable' },
+      bindingValidation: { type: 'string', tooltip: '"admin" or "client"' },
       /* wwEditor:end */
     },
     billingData: {
@@ -41,16 +52,6 @@ export default {
       /* wwEditor:start */
       bindingValidation: { type: 'array', tooltip: 'List of billing/invoice rows from Supabase' },
       /* wwEditor:end */
-    },
-    statusFormula: {
-      label: { en: 'Status field' },
-      type: 'Formula',
-      section: 'settings',
-      options: (content) => ({
-        template: Array.isArray(content.billingData) && content.billingData.length > 0 ? content.billingData[0] : null,
-      }),
-      defaultValue: { type: 'f', code: "context.mapping?.['status'] ?? context.status ?? ''" },
-      hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
     },
     idFormula: {
       label: { en: 'ID field' },
@@ -82,6 +83,16 @@ export default {
       defaultValue: { type: 'f', code: "context.mapping?.['type'] ?? context.type ?? ''" },
       hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
     },
+    statusFormula: {
+      label: { en: 'Status field' },
+      type: 'Formula',
+      section: 'settings',
+      options: (content) => ({
+        template: Array.isArray(content.billingData) && content.billingData.length > 0 ? content.billingData[0] : null,
+      }),
+      defaultValue: { type: 'f', code: "context.mapping?.['status'] ?? context.status ?? ''" },
+      hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
+    },
     invoiceNumberFormula: {
       label: { en: 'Invoice number field' },
       type: 'Formula',
@@ -90,6 +101,16 @@ export default {
         template: Array.isArray(content.billingData) && content.billingData.length > 0 ? content.billingData[0] : null,
       }),
       defaultValue: { type: 'f', code: "context.mapping?.['invoice_number'] ?? context.invoice_number ?? ''" },
+      hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
+    },
+    invoiceReferenceFormula: {
+      label: { en: 'Invoice reference field (admin only)' },
+      type: 'Formula',
+      section: 'settings',
+      options: (content) => ({
+        template: Array.isArray(content.billingData) && content.billingData.length > 0 ? content.billingData[0] : null,
+      }),
+      defaultValue: { type: 'f', code: "context.mapping?.['invoice_reference'] ?? context.invoice_reference ?? ''" },
       hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
     },
     invoiceValueFormula: {
@@ -103,7 +124,7 @@ export default {
       hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
     },
     createdAtFormula: {
-      label: { en: 'Created at field' },
+      label: { en: 'Date field' },
       type: 'Formula',
       section: 'settings',
       options: (content) => ({
@@ -113,7 +134,7 @@ export default {
       hidden: (content, sidepanelContent, boundProps) => !boundProps?.billingData,
     },
     upcomingLabel: {
-      label: { en: 'Upcoming label' },
+      label: { en: 'Upcoming section label' },
       type: 'Text',
       section: 'settings',
       multilang: true,
@@ -121,7 +142,7 @@ export default {
       bindable: true,
     },
     pendingLabel: {
-      label: { en: 'Pending label' },
+      label: { en: 'Pending section label' },
       type: 'Text',
       section: 'settings',
       multilang: true,
@@ -129,7 +150,7 @@ export default {
       bindable: true,
     },
     completedLabel: {
-      label: { en: 'Completed label' },
+      label: { en: 'Completed section label' },
       type: 'Text',
       section: 'settings',
       multilang: true,
@@ -137,7 +158,7 @@ export default {
       bindable: true,
     },
     emptyLabel: {
-      label: { en: 'Empty state label' },
+      label: { en: 'Empty state text' },
       type: 'Text',
       section: 'settings',
       multilang: true,
@@ -183,33 +204,43 @@ export default {
       bindable: true,
     },
     upcomingAccentColor: {
-      label: { en: 'Upcoming accent' },
+      label: { en: 'Upcoming color' },
       type: 'Color',
       section: 'style',
       defaultValue: '#f59e0b',
       bindable: true,
       /* wwEditor:start */
-      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Upcoming status color' },
+      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Upcoming accent' },
       /* wwEditor:end */
     },
     pendingAccentColor: {
-      label: { en: 'Pending accent' },
+      label: { en: 'Pending color' },
       type: 'Color',
       section: 'style',
       defaultValue: '#3b82f6',
       bindable: true,
       /* wwEditor:start */
-      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Pending status color' },
+      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Pending accent' },
       /* wwEditor:end */
     },
     completedAccentColor: {
-      label: { en: 'Completed accent' },
+      label: { en: 'Completed color' },
       type: 'Color',
       section: 'style',
       defaultValue: '#10b981',
       bindable: true,
       /* wwEditor:start */
-      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Completed status color' },
+      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Completed accent' },
+      /* wwEditor:end */
+    },
+    accentColor: {
+      label: { en: 'Link / action color' },
+      type: 'Color',
+      section: 'style',
+      defaultValue: '#0d9488',
+      bindable: true,
+      /* wwEditor:start */
+      bindingValidation: { cssSupports: 'color', type: 'string', tooltip: 'Accent color for links and actions' },
       /* wwEditor:end */
     },
     fontFamily: {
