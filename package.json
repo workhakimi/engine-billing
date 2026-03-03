@@ -1,8 +1,8 @@
 {
-  "name": "gdm-billing-frontend",
-  "version": "1.0.0",
+  "name": "ww-gdm-billing-frontend",
+  "version": "1.0.1",
   "scripts": {
-    "build": "weweb build name=gdm-billing-frontend type=element",
+    "build": "weweb build",
     "serve": "weweb serve"
   },
   "devDependencies": {
