@@ -121,29 +121,21 @@
         :class="{ 'gdm-bill__row--preview': inv._p, 'gdm-bill__row--editing': editingId === inv.id }"
         @click="handleClick(inv)"
       >
-        <!-- Status + number column -->
-        <div class="gdm-bill__row-status-col">
-          <span
-            class="gdm-bill__status-badge"
-            :class="'gdm-bill__status-badge--' + normStatus(inv.status)"
-          >{{ inv.status || 'Unknown' }}</span>
-          <span v-if="inv.invoice_number" class="gdm-bill__inv-num">{{ inv.invoice_number }}</span>
+        <!-- Top: status · title · amount -->
+        <div class="gdm-bill__row-head">
+          <span class="gdm-bill__status-badge" :class="'gdm-bill__status-badge--' + normStatus(inv.status)">{{ inv.status || 'Unknown' }}</span>
+          <span class="gdm-bill__row-title">{{ inv.title || 'Untitled Invoice' }}</span>
+          <span class="gdm-bill__amount">{{ formatAmount(inv.invoice_value) }}</span>
         </div>
 
-        <!-- Main content -->
-        <div class="gdm-bill__row-main">
-          <div class="gdm-bill__row-title">{{ inv.title || 'Untitled Invoice' }}</div>
+        <!-- Bottom: meta · actions -->
+        <div class="gdm-bill__row-foot">
           <div class="gdm-bill__row-meta">
             <span v-if="inv.type" class="gdm-bill__type-pill">{{ inv.type }}</span>
+            <span v-if="inv.invoice_number" class="gdm-bill__inv-num">{{ inv.invoice_number }}</span>
             <span v-if="inv.invoice_reference" class="gdm-bill__ref">{{ inv.invoice_reference }}</span>
             <span v-if="inv.created_at" class="gdm-bill__date">{{ formatDate(inv.created_at) }}</span>
           </div>
-          <div v-if="inv.description" class="gdm-bill__desc">{{ inv.description }}</div>
-        </div>
-
-        <!-- Amount + actions -->
-        <div class="gdm-bill__row-right">
-          <span class="gdm-bill__amount">{{ formatAmount(inv.invoice_value) }}</span>
           <div class="gdm-bill__row-actions" @click.stop>
             <a
               v-if="inv.folder_link"
@@ -165,6 +157,9 @@
             </template>
           </div>
         </div>
+
+        <!-- Description (optional) -->
+        <p v-if="inv.description" class="gdm-bill__desc">{{ inv.description }}</p>
       </div>
     </div>
 
@@ -565,36 +560,47 @@ export default {
   padding-top: 0.25rem;
 }
 
-/* ─── Invoice list ─── */
+/* ─── Invoice list (cards) ─── */
 .gdm-bill__list {
   display: flex;
   flex-direction: column;
+  gap: 0.625rem;
 }
 
 .gdm-bill__row {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   cursor: pointer;
-  transition: background 0.12s;
-  border-radius: 4px;
+  transition: box-shadow 0.15s, border-color 0.15s;
 
-  &:first-child { border-top: 1px solid #f1f5f9; }
-  &:hover { background: #fafbfc; }
+  &:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); border-color: #cbd5e1; }
   &--preview { opacity: 0.75; }
-  &--editing { background: color-mix(in srgb, var(--gdm-accent) 4%, transparent); }
+  &--editing {
+    border-color: var(--gdm-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--gdm-accent) 12%, transparent);
+  }
 }
 
-/* Status + number */
-.gdm-bill__row-status-col {
+/* Head row: status | title | amount */
+.gdm-bill__row-head {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  flex-shrink: 0;
-  width: 90px;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Foot row: meta | actions */
+.gdm-bill__row-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .gdm-bill__status-badge {
@@ -622,27 +628,27 @@ export default {
   letter-spacing: 0.02em;
 }
 
-/* Main content */
-.gdm-bill__row-main {
+/* Title */
+.gdm-bill__row-title {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.gdm-bill__row-title {
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--gdm-text);
   line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Meta chips row */
 .gdm-bill__row-meta {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .gdm-bill__type-pill {
@@ -671,34 +677,29 @@ export default {
 .gdm-bill__desc {
   font-size: 0.8rem;
   color: #64748b;
-  line-height: 1.45;
+  line-height: 1.5;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  margin-top: 0.1rem;
+  margin: 0;
 }
 
-/* Amount + actions */
-.gdm-bill__row-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
+/* Amount */
 .gdm-bill__amount {
   font-weight: 700;
   font-size: 0.9375rem;
   color: var(--gdm-text);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
+/* Actions */
 .gdm-bill__row-actions {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .gdm-bill__action-btn {
@@ -735,9 +736,7 @@ export default {
 
 /* ─── Responsive ─── */
 @media (max-width: 520px) {
-  .gdm-bill__row { flex-wrap: wrap; }
-  .gdm-bill__row-status-col { width: auto; flex-direction: row; align-items: center; gap: 0.5rem; }
-  .gdm-bill__row-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+  .gdm-bill__row-head { flex-wrap: wrap; }
   .gdm-bill__summary { font-size: 0.75rem; }
 }
 </style>
