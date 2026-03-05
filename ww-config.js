@@ -4,7 +4,7 @@ export default {
     icon: 'file-invoice',
     customSettingsPropertiesOrder: [
       'viewMode',
-      { label: 'Data', isCollapsible: true, properties: ['billingData', 'currencySymbol'] },
+      { label: 'Data', isCollapsible: true, properties: ['billingData', 'clientId', 'projectId', 'currencySymbol'] },
     ],
     customStylePropertiesOrder: [
       { label: 'Status colours', isCollapsible: true, properties: ['upcomingColor', 'issuedColor', 'completedColor'] },
@@ -15,13 +15,13 @@ export default {
     {
       name: 'onAddInvoice',
       label: { en: 'On add invoice' },
-      event: { value: { title: null, type: null, status: null, invoice_number: null, invoice_reference: null, invoice_value: null, description: null, folder_link: null, einvoice_uuid: null } },
+      event: { value: { title: null, type: null, status: null, client_id: null, project_id: null, invoice_number: null, invoice_reference: null, invoice_value: null, description: null, folder_link: null, einvoice_uuid: null } },
       default: true,
     },
     {
       name: 'onUpdateInvoice',
       label: { en: 'On update invoice' },
-      event: { value: { id: null, title: null, type: null, status: null, invoice_number: null, invoice_reference: null, invoice_value: null, description: null, folder_link: null, einvoice_uuid: null } },
+      event: { value: { id: null, title: null, type: null, status: null, client_id: null, project_id: null, invoice_number: null, invoice_reference: null, invoice_value: null, description: null, folder_link: null, einvoice_uuid: null } },
     },
     {
       name: 'onDeleteInvoice',
@@ -62,6 +62,26 @@ export default {
         type: 'array',
         tooltip: 'List of invoice objects. Each needs: id, title, status, invoice_number, invoice_value, created_at',
       },
+      /* wwEditor:end */
+    },
+    clientId: {
+      label: { en: 'Default client ID' },
+      type: 'Text',
+      section: 'settings',
+      bindable: true,
+      defaultValue: '',
+      /* wwEditor:start */
+      bindingValidation: { type: 'string', tooltip: 'client_id to include in add/update invoice emits' },
+      /* wwEditor:end */
+    },
+    projectId: {
+      label: { en: 'Default project ID' },
+      type: 'Text',
+      section: 'settings',
+      bindable: true,
+      defaultValue: '',
+      /* wwEditor:start */
+      bindingValidation: { type: 'string', tooltip: 'project_id to include in add/update invoice emits' },
       /* wwEditor:end */
     },
     currencySymbol: {

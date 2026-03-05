@@ -298,6 +298,8 @@ export default {
         title:             form.value.title             || null,
         type:              form.value.type              || null,
         description:       form.value.description       || null,
+        client_id:         props.content?.clientId      || null,
+        project_id:        props.content?.projectId     || null,
         invoice_number:    form.value.invoice_number    || null,
         invoice_reference: form.value.invoice_reference || null,
         einvoice_uuid:     form.value.einvoice_uuid     || null,
